@@ -15,7 +15,7 @@ function checkExistsUsername(request, response, next) {
     const userAlreadyExists = users.find(user => user.username == username);
 
     if (!userAlreadyExists) {
-        return response.status(400).json({
+        return response.status(404).json({
             error: "Username not exists."
         });
     }
@@ -84,7 +84,7 @@ app.put('/todos/:id', checkExistsUsername, (request, response) => {
     const indexTodos = user.todos.findIndex(todo => todo.id == id);
 
     if (indexTodos < 0) {
-        return response.status(400).json({
+        return response.status(404).json({
             error: "Task does not exist."
         });
     }
@@ -95,6 +95,52 @@ app.put('/todos/:id', checkExistsUsername, (request, response) => {
         deadline: new Date(deadline),
         created: user.todos[indexTodos].created_at
     }
+
+    return response.status(200).json({
+        success: true,
+        data: user.todos
+    });
+});
+
+app.patch('/todos/:id/done', checkExistsUsername, (request, response) => {
+    const { id } = request.params;
+    const { user } = request;
+
+    const indexTodos = user.todos.findIndex(todo => todo.id == id);
+
+    if (indexTodos < 0) {
+        return response.status(404).json({
+            error: "Task does not exist."
+        });
+    }
+
+    if (user.todos[indexTodos].done) {
+        return response.status(403).json({
+            error: "Task already finished."
+        });
+    }
+
+    user.todos[indexTodos].done = true;
+
+    return response.status(200).json({
+        success: true,
+        data: user.todos
+    });
+});
+
+app.delete('/todos/:id', checkExistsUsername, (request, response) => {
+    const { user } = request;
+    const { id } = request.params;
+
+    const todo = user.todos.find(todo => todo.id == id);
+
+    if (!todo) {
+        return response.status(404).json({
+            error: "Task does not exist."
+        });
+    }
+
+    user.todos.splice(todo, 1);
 
     return response.status(200).json({
         success: true,
