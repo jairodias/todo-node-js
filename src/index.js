@@ -23,7 +23,8 @@ app.post('/users', (request, response) => {
     const user = {
         id: uuid(),
         name,
-        username
+        username,
+        todos: []
     };
 
     users.push(user);
