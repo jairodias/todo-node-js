@@ -45,29 +45,24 @@ app.post('/users', (request, response) => {
 
     users.push(user);
 
-    return response.status(201).json({
-        success: true
-    });
+    return response.status(201).json(user);
 });
 
 app.post('/todos', checkExistsUsername, (request, response) => {
     const { user } = request;
     const { title, deadline } = request.body;
-
+    
     const todo = {
         id: uuid(),
         done: false,
         title,
         deadline: new Date(deadline),
-        creadted_at: new Date()
-    }
+        created_at: new Date()
+    };
 
     user.todos.push(todo);
 
-    return response.status(201).json({
-        success: true,
-        data: user.todos
-    });
+    return response.status(201).json(todo);
 });
 
 app.get('/todos', checkExistsUsername, (request, response) => {
@@ -92,14 +87,12 @@ app.put('/todos/:id', checkExistsUsername, (request, response) => {
     user.todos[indexTodos] = {
         id: user.todos[indexTodos].id,
         title,
+        done: false,
         deadline: new Date(deadline),
-        created: user.todos[indexTodos].created_at
+        created_at: new Date(user.todos[indexTodos].created_at)
     }
 
-    return response.status(200).json({
-        success: true,
-        data: user.todos
-    });
+    return response.status(200).json(user.todos[indexTodos]);
 });
 
 app.patch('/todos/:id/done', checkExistsUsername, (request, response) => {
@@ -114,18 +107,9 @@ app.patch('/todos/:id/done', checkExistsUsername, (request, response) => {
         });
     }
 
-    if (user.todos[indexTodos].done) {
-        return response.status(403).json({
-            error: "Task already finished."
-        });
-    }
-
     user.todos[indexTodos].done = true;
 
-    return response.status(200).json({
-        success: true,
-        data: user.todos
-    });
+    return response.status(200).json(user.todos[indexTodos]);
 });
 
 app.delete('/todos/:id', checkExistsUsername, (request, response) => {
@@ -142,11 +126,7 @@ app.delete('/todos/:id', checkExistsUsername, (request, response) => {
 
     user.todos.splice(todo, 1);
 
-    return response.status(200).json({
-        success: true,
-        data: user.todos
-    });
+    return response.status(204).json([]);
 });
 
-app.listen(3000);
-
+module.exports = app;
